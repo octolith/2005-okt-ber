@@ -78,7 +78,7 @@ int main()
 		string kodolt;
 		stringstream kodolt_stream;
 		for (int i = 0; i < szoveg.length(); i++) {
-			kodolt_stream << kodtabla[szoveg[i]-'A'][kulcsszoveg[i]-'A'];
+			kodolt_stream << kodtabla[szoveg[i] - 'A'][kulcsszoveg[i] - 'A'];
 		}
 		kodolt = kodolt_stream.str();
 
@@ -98,9 +98,6 @@ int main()
 		cout << "Nem sikerult beolvasni" << endl;
 	}
 
-	
-
 	system("pause");
 	return 0;
 }
-
