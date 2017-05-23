@@ -5,65 +5,76 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <sstream>
-#include <fstream>
+#include <Windows.h>
 
 using namespace std;
 
-// kiveszi a felesleges karaktereket
+// kiveszi a felesleges karaktereket, a szoveget a vegeig, de legfeljebb 255 karakterig vizsgalja
 string atalakit(string eredeti) {
-	stringstream atalakitott;
+	string atalakitott;
 	int meret = 0;
-	for (int i = 0; i < eredeti.length() && meret <= 255; i++) {
+	for (int i = 0; i < eredeti.length() && i < 255; i++) {
+		// ha az adott karakter kis- vagy nagybetû, akkor "megtartom", hozzáfûzöm az újonnan létrehozott stringhez
 		if (eredeti[i] >= 'a' && eredeti[i] <= 'z' || eredeti[i] >= 'A' && eredeti[i] <= 'Z') {
-			atalakitott << eredeti[i];
-			meret++;
+			atalakitott += eredeti[i];
 		}
 	}
-	return atalakitott.str();
+	return atalakitott;
 }
 
 // nagybetusiti a kapott szoveget
 string nagybetusit(string eredeti) {
+	string nagybetusitett;
 	for (int i = 0; i < eredeti.length(); i++) {
-		eredeti[i] = toupper(eredeti[i]);
+		nagybetusitett += toupper(eredeti[i]);
 	}
-	return eredeti;
+	return nagybetusitett;
 }
 
-// egymas utan fuzi az elso stringet annyiszor, hogy olyan hosszu legyen, mint a masodik string
+// egymas utan fuzi a kulcsszot annyiszor, hogy olyan hosszu legyen, mint a nyilt szoveg
 string osszefuz(string kulcsszo, string szoveg) {
-	stringstream kulcsszoveg;
+	string kulcsszoveg;
 	for (int i = 0; i < szoveg.length(); i++) {
-		kulcsszoveg << kulcsszo[i % kulcsszo.length()];
+		// a kulcsszo valahany karakter hosszu, ezek ismetlodnek egymás után
+		// maradékképzéssel veszem a megfelelõ karaktert
+		kulcsszoveg += kulcsszo[i % kulcsszo.length()];
 	}
-	return kulcsszoveg.str();
+	return kulcsszoveg;
 }
 
 int main()
 {
-	// 1. feladat
-	cout << "Kerem a nyilt szoveget! (maximum 255 karakter hosszu, ekezetek nelkuli szoveg)" << endl;
+	cout << endl;
+	cout << "1. feladat" << endl;
+	cout << "Kerem a nyilt szoveget! (maximum 255 karakter hosszu, nem ures, ekezetek nelkuli szoveg)" << endl;
 	string szoveg;
 	getline(cin, szoveg);
 
-	// 2. feladat
+	cout << endl;
+	cout << "2. feladat" << endl;
+	// ékezetes karakterekkel nem foglalkozunk
+	// a szoveg új értéke legyen annak nagybetûsített, átalakított (felesleges karakterektõl mentes) változata
 	szoveg = nagybetusit(atalakit(szoveg));
 
-	// 3. feladat
+	cout << endl;
+	cout << "3. feladat" << endl;
 	cout << szoveg << endl;
 
-	// 4. feladat
+	cout << endl;
+	cout << "4. feladat" << endl;
 	string kulcsszo;
-	cout << "Kerem a kulcsszot! (maximum 5 ekezetek nelkuli karakter)" << endl;
+	cout << "Kerem a kulcsszot! (maximum 5 karakteres, nem ures, ekezetek nelkuli szo)" << endl;
 	cin >> kulcsszo;
 	kulcsszo = nagybetusit(kulcsszo);
 
-	// 5. feladat
+	cout << endl;
+	cout << "5. feladat" << endl;
 	string kulcsszoveg = osszefuz(kulcsszo, szoveg);
 	cout << kulcsszoveg << endl;
 
-	// 6. feladat
+	cout << endl;
+	cout << "6. feladat" << endl;
+	// 2D-s karaktertömbben tárolom a kódtáblát
 	char kodtabla[26][26];
 	ifstream fajl_be;
 	fajl_be.open("Vtabla.dat");
@@ -75,14 +86,18 @@ int main()
 			}
 		}
 		fajl_be.close();
-		string kodolt;
-		stringstream kodolt_stream;
-		for (int i = 0; i < szoveg.length(); i++) {
-			kodolt_stream << kodtabla[szoveg[i] - 'A'][kulcsszoveg[i] - 'A'];
-		}
-		kodolt = kodolt_stream.str();
 
-		// 7. feladat
+		string kodolt;
+		for (int i = 0; i < szoveg.length(); i++) {
+			// kihasználom, hogy a karakterek számként vannak tárolva
+			// 'A' lesz a 0 index, 'B' az 1 stb.
+			// így ha az adott karakterbõl kivonom 'A' értékét, megkapom az indexet
+			// ('A'-'A' = 0, 'B'-'A' = 1, 'C'-'A' = 2 stb.)
+			kodolt += kodtabla[szoveg[i] - 'A'][kulcsszoveg[i] - 'A'];
+		}
+
+		cout << endl;
+		cout << "7. feladat" << endl;
 		cout << kodolt << endl;
 		ofstream fajl_ki;
 		fajl_ki.open("kodolt.dat");
@@ -91,13 +106,14 @@ int main()
 			fajl_ki.close();
 		}
 		else {
-			cout << "Nem sikerult kiirni" << endl;
+			cout << "Nem sikerult kiirni a kodolt szoveget." << endl;
 		}
 	}
 	else {
-		cout << "Nem sikerult beolvasni" << endl;
+		cout << "Nem sikerult beolvasni a kodtablat." << endl;
 	}
 
+	cout << endl << endl;
 	system("pause");
 	return 0;
 }
